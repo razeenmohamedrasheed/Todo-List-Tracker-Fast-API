@@ -5,3 +5,7 @@ class SignUp(BaseModel):
     email:str
     contact:str
     password:str
+
+class Login(BaseModel):
+    username:str
+    password:str
