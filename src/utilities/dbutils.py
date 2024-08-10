@@ -53,3 +53,16 @@ class DButils:
         except Exception as e:
             print(e)
             raise e
+        
+    def updateQuery(self, query):
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute(query)
+            self.conn.commit()
+        except Exception as e:
+            self.conn.rollback() 
+            print(f"An error occurred: {e}")
+            raise e
+        finally:
+            cursor.close() 
+

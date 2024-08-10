@@ -5,5 +5,5 @@ class Addtodo(BaseModel):
     todo_name:str
 
 class UpdateTodo(BaseModel):
-    user_id:int
     task_id:int
+    task_name:str
