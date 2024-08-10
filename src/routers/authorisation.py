@@ -26,7 +26,18 @@ def userSignup(payload:SignUp):
                 "message":"Signup Success"
         }
 
-@router.post('login')
+@router.post('/login')
 def userLogin(payload:Login):
-        return payload
+         db = DButils()
+         query = f"""select * from users where username = '{payload.username}' """
+         response = db.execute_query(query, True)
+         if len(response) == 0:
+                 return HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User Not Found")
+         user_password = payload.password
+         check = pwd_context.verify(user_password, response[0]['password'])
+         if not check:
+            return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+         return{
+                "success"
+         }
 

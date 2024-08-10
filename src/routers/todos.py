@@ -49,7 +49,7 @@ def updateTask(user_id:int,payload:UpdateTodo):
                  }
 
 @router.delete('/todo/{user_id}/{task_id}',status_code=status.HTTP_200_OK)
-def deleteTask(user_id:int,payload:UpdateTodo):
+def deleteTask(user_id:int,task_id:int):
     # return task_id
     db = DButils()
     query = f"""select * from todos where user_id = {user_id} """
@@ -57,5 +57,10 @@ def deleteTask(user_id:int,payload:UpdateTodo):
     if len(datas)==0:
         return status.HTTP_404_NOT_FOUND
     for data in datas:
-        print(data)
+        if data['todo_id'] == task_id:
+             query = f"""DELETE from todos WHERE user_id = {user_id} and todo_id={task_id}"""
+             db.updateQuery(query)
+             return{
+                 "message":"successfully deleted"
+             }
                
