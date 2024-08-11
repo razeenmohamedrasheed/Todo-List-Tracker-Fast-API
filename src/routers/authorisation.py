@@ -2,12 +2,18 @@ from fastapi import APIRouter,status,HTTPException
 from src.models.authorisation import SignUp,Login
 from src.utilities.dbutils import DButils
 from passlib.context import CryptContext
+from datetime import datetime, timedelta,timezone
+import jwt
 
 router = APIRouter(
         tags=["Authorisation"]
 )
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+
+SECRET_KEY = "YwqaxxPtVk6F9h7cAiNOdmhWALBkvwoJcgEohhPmjVvYeC2TQMqsOfTg3edppGQzliIwBs68DQ4g1lPBrq8rh7FuMmGF2rVwmWIv"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 @router.post('/signup',status_code=status.HTTP_201_CREATED)
 def userSignup(payload:SignUp):
@@ -37,7 +43,18 @@ def userLogin(payload:Login):
          check = pwd_context.verify(user_password, response[0]['password'])
          if not check:
             return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-         return{
-                "success"
-         }
+         data={"name":payload.username}
+         access_token = generate_access_token(data)
+         return {"access_token": access_token, "token_type": "bearer"}
+         
+
+
+
+def generate_access_token(data: dict, expires_delta: timedelta = None):
+        to_encode = data.copy()
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        to_encode.update({"exp": expire})
+        return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+       
+         
 
