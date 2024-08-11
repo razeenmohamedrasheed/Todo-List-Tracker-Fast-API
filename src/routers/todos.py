@@ -1,6 +1,9 @@
-from fastapi import APIRouter,status
+from fastapi import APIRouter,status,Depends
 from src.models.todos import Addtodo,UpdateTodo
+from src.models.authorisation import TokenData
 from src.utilities.dbutils import DButils
+from src.routers.authorisation import get_current_user
+
 
 router = APIRouter(
     tags=["TODO CRUD"]
@@ -8,7 +11,7 @@ router = APIRouter(
 
 
 @router.post('/todo',status_code=status.HTTP_201_CREATED)
-def addTodo(payload:Addtodo):
+def addTodo(payload:Addtodo,current_user: str = Depends(get_current_user)):
     db = DButils()
     columns = ['todoname','user_id']
     values =(
@@ -21,7 +24,7 @@ def addTodo(payload:Addtodo):
         }
 
 @router.get('/todo',status_code=status.HTTP_200_OK)
-def getIndividualTask(user_id):
+def getIndividualTask(user_id,current_user: str = Depends(get_current_user)):
     db = DButils()
     query = f"""select * from todos where user_id = '{user_id}' """
     data  = db.execute_query(query,True)
@@ -31,7 +34,7 @@ def getIndividualTask(user_id):
         }
 
 @router.put('/todo/{user_id}',status_code=status.HTTP_200_OK)
-def updateTask(user_id:int,payload:UpdateTodo):
+def updateTask(user_id:int,payload:UpdateTodo,current_user: str = Depends(get_current_user)):
     # return task_id
     db = DButils()
     query = f"""select * from todos where user_id = {user_id} """
@@ -49,7 +52,7 @@ def updateTask(user_id:int,payload:UpdateTodo):
                  }
 
 @router.delete('/todo/{user_id}/{task_id}',status_code=status.HTTP_200_OK)
-def deleteTask(user_id:int,task_id:int):
+def deleteTask(user_id:int,task_id:int,current_user: str = Depends(get_current_user)):
     # return task_id
     db = DButils()
     query = f"""select * from todos where user_id = {user_id} """
